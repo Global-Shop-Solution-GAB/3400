@@ -1,0 +1,79 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+
+Variable.Global.sJob.Declare(String)
+Variable.Global.sSuffix.Declare(String)
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'hook 15930
+F.Intrinsic.Control.If(V.Caller.Hook,=,15930)
+	V.Global.sJob.Set(V.Passed.009990)
+	V.Global.sSuffix.Set(V.Passed.009991)
+	F.Intrinsic.Control.CallSub(Format)
+	V.Passed.GAB-LBL-2.Set("")
+	F.ODBC.Connection!con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+	F.Intrinsic.Control.CallSub(Records)
+F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.CallSub(Unload)
+
+Program.Sub.Main.End
+
+Program.Sub.Format.Start
+
+V.Passed.GAB-LBL-1.Set("Order Type:")
+F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-LBL-1,"HIDE",0)
+'F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-LBL-1,"LOCK",1)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-1","PL",470)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-1","PT",10)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-1","PW",90)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-1","PH",25)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-1","FS",20)
+'F.Intrinsic.Variable.SetProperty("GAB-LBL-1","FC",V.Color.Black)
+
+'V.Passed.GAB-LBL-2.Set("AAAAAAAAAABBBBBBBBBBCCCCCCCCCC")
+F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-LBL-2,"HIDE",0)
+'F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-LBL-2,"LOCK",1)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-2","PL",560)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-2","PT",10)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-2","PW",220)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-2","PH",20)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-2","FS",20)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-2","FC",V.Color.Black)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-2","BC",V.Color.Yellow)
+F.Intrinsic.Control.ExitSub
+
+Program.Sub.Format.End
+
+Program.Sub.Records.Start
+V.Local.sSQL.Declare(String)
+'F.Intrinsic.Debug.InvokeDebugger
+'F.Intrinsic.Debug.Stop
+F.Intrinsic.String.Concat("Select * From V_ORDER_TO_WO Where JOB = '",V.Global.sJob,"' and SUFFIX = '",V.Global.sSuffix,"'",V.Local.sSQL)
+F.ODBC.Connection!con.OpenRecordsetRO("rst",V.Local.sSQL)
+F.Intrinsic.Control.If(V.ODBC.con!rst.EOF,=,False)
+	F.Intrinsic.String.Concat("Select * From V_ORDER_HEADER where ORDER_NO = '",V.ODBC.con!rst.FieldValTrim!ORDER_NO,"'",V.Local.sSQL)
+	F.ODBC.Connection!con.OpenRecordsetRO("rstOrd",V.Local.sSQL)
+	F.Intrinsic.Control.If(V.ODBC.con!rstOrd.EOF,=,False)
+		V.Passed.GAB-LBL-2.Set(V.ODBC.con!rstOrd.FieldValTrim!USER_1)
+'	F.Intrinsic.Control.Else
+'		V.Passed.GAB-LBL-2.Set("NA")
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.ExitSub
+
+Program.Sub.Records.End
+
+Program.Sub.Unload.Start
+
+
+Program.Sub.Unload.End
+
+Program.Sub.Comments.Start
+${$0$}$GCG_SO_GUI$}$ERIC$}$7/2/2012
+${$3$}$0$}$$}$-1$}$-1$}$$}$1/1/1900$}$quote 3589 - display Sales Order user field on GUI
+Program.Sub.Comments.End
+
